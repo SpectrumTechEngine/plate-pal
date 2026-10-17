@@ -508,33 +508,66 @@
     const q=els.searchInput.value.trim(); if(!q)return;
     showOnly('loadingCard'); els.loadingText.textContent='Searching...';
     ste('track','play'); ste('detail','name-search');
-    try{
-      // Two search services: the classic one, then the newer one (whichever answers first in order)
-      let list=null;
-      const urls=['https://world.openfoodfacts.org/cgi/search.pl?search_simple=1&action=process&json=1&page_size=15&fields='+FIELDS+'&search_terms='+encodeURIComponent(q),
-        'https://search.openfoodfacts.org/search?page_size=15&fields='+FIELDS+'&q='+encodeURIComponent(q)];
-      for(const u of urls){
-        try{
-          const r=await fetch(u); if(!r.ok)continue;
-          const data=await r.json();
-          list=(data.products||data.hits||[]).map(p=>Object.assign({},p,{brands:Array.isArray(p.brands)?p.brands.join(', '):p.brands}));
-          break;
-        }catch(err){}
-      }
-      if(!list)throw new Error('search');
-      list=list.filter(p=>p.product_name||p.product_name_en);
-      if(!list.length){showOnly(null);els.homeStatus.textContent='Nothing found for "'+q+'". Try a shorter name, or scan the barcode.';return;}
-      els.searchList.innerHTML='';
-      list.forEach(p=>{
-        const f=fromOFF(p), li=document.createElement('li');
-        li.innerHTML='<div class="grow"><div class="name"></div><div class="muted"></div></div><button class="small light">Check</button>';
-        li.querySelector('.name').textContent=f.name; li.querySelector('.muted').textContent=f.brand;
-        li.querySelector('button').addEventListener('click',()=>showResult(f));
-        els.searchList.appendChild(li);
-      });
-      showOnly('searchCard');
-    }catch(err){showOnly(null);els.homeStatus.textContent='Search isn\'t working right now. Try again in a minute, or scan the barcode.';}
+    const mine=searchMine(q);
+    const online=await searchOnline(q);
+    if(!mine.length&&!(online&&online.list.length)){
+      showOnly(null);
+      els.homeStatus.textContent=online?'Nothing found for "'+q+'". Try a shorter name, or scan the barcode.':'Search isn\'t working right now. Try again later, or scan the barcode.';
+      return;
+    }
+    els.searchList.innerHTML='';
+    const head=t=>{const li=document.createElement('li');li.innerHTML='<b></b>';li.firstChild.textContent=t;els.searchList.appendChild(li);};
+    const item=(f,sub,open)=>{
+      const li=document.createElement('li');
+      li.innerHTML='<div class="grow"><div class="name"></div><div class="muted"></div></div><button class="small light">Check</button>';
+      li.querySelector('.name').textContent=f.name; li.querySelector('.muted').textContent=sub;
+      li.querySelector('button').addEventListener('click',open);
+      els.searchList.appendChild(li);
+    };
+    if(mine.length){
+      head('Your foods');
+      mine.forEach(m=>item(m,m.why,()=>m.code?lookup(m.code):showResult({code:'',name:m.name,brand:m.brand||'',ingredients:m.name,ingredientsText:'',traces:''},true)));
+    }
+    if(online&&online.list.length){
+      head(online.us?'From the US food database (Irish/UK food may be missing)':'From the food database');
+      online.list.forEach(f=>item(f,f.brand,()=>showResult(f)));
+    } else if(!online) head('Online search isn\'t working right now, so only your own foods are shown.');
+    showOnly('searchCard');
   });
+  // Your own foods (safe foods + diary), found even with no internet
+  function searchMine(q){
+    const n=q.toLowerCase(), out=[], seen=new Set();
+    D.safe.forEach(s=>{if(s.name.toLowerCase().includes(n)){seen.add(s.name.toLowerCase());out.push({code:s.code,name:s.name,brand:s.brand,why:'⭐ Safe food'});}});
+    D.diary.forEach(e=>{const k=e.food.toLowerCase();if(k.includes(n)&&!seen.has(k)){seen.add(k);out.push({code:e.code,name:e.food,brand:'',why:'📝 In the diary: '+rx(e.r)[2]});}});
+    return out.slice(0,8);
+  }
+  // Online search, trying each service in turn: Open Food Facts (classic, then new), then the US database (USDA).
+  // Returns null if none of them answered.
+  async function searchOnline(q){
+    const Q=encodeURIComponent(q);
+    const offs=['https://world.openfoodfacts.org/cgi/search.pl?search_simple=1&action=process&json=1&page_size=15&fields='+FIELDS+'&search_terms='+Q,
+      'https://search.openfoodfacts.org/search?page_size=15&fields='+FIELDS+'&q='+Q];
+    for(const u of offs){
+      try{
+        const r=await fetch(u); if(!r.ok)continue;
+        const data=await r.json();
+        const list=(data.products||data.hits||[]).map(p=>Object.assign({},p,{brands:Array.isArray(p.brands)?p.brands.join(', '):p.brands}))
+          .filter(p=>p.product_name||p.product_name_en).map(p=>fromOFF(p));
+        if(list.length)return {list};
+      }catch(err){}
+    }
+    try{
+      // DEMO_KEY: free, no sign-up, about 10 searches an hour per phone
+      const r=await fetch('https://api.nal.usda.gov/fdc/v1/foods/search?api_key=DEMO_KEY&dataType=Branded&pageSize=15&query='+Q);
+      if(r.ok){
+        const data=await r.json();
+        const nice=s=>String(s||'').toLowerCase().replace(/(^|[\s(&-])[a-z]/g,c=>c.toUpperCase());
+        return {us:true,list:(data.foods||[]).map(f=>({code:String(f.gtinUpc||'').replace(/\D/g,''),name:nice(f.description)||'Unknown food',brand:nice(f.brandName||f.brandOwner),
+          ingredients:f.ingredients||'',ingredientsText:f.ingredients||'',traces:''}))};
+      }
+    }catch(err){}
+    return null;
+  }
 
   /* ---------- Ingredient photo (from Food Detective) ---------- */
   let photoFor=null;
