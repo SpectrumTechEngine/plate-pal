@@ -1,0 +1,787 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#24515a">
+<meta name="robots" content="noindex,nofollow">
+<title>Plate Pal</title>
+<link rel="icon" type="image/png" href="platepal-icon.png">
+<link rel="apple-touch-icon" href="platepal-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<script src="https://thespectrumtechengine.com/ste-owner.js" data-app="plate-pal" defer></script>
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Plate Pal">
+<style>
+  /* Calm colours, no flashing, big touch targets */
+  :root{--bg:#f4f1ea;--card:#fffdf8;--ink:#23323a;--soft:#5d6d74;--line:#e2ddd2;--brand:#24515a;--brand2:#3d7f86;
+    --good:#2f7d5b;--goodbg:#e4f3ea;--warn:#9a6a12;--warnbg:#fbf0d9;--bad:#a2453d;--badbg:#f8e3df;--star:#c7901c}
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{background:var(--bg);color:var(--ink);font:17px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    padding-bottom:calc(76px + env(safe-area-inset-bottom))}
+  header{background:var(--brand);color:#fff;padding:calc(12px + env(safe-area-inset-top)) 16px 12px;display:flex;align-items:center;gap:10px}
+  header img{width:40px;height:40px;border-radius:10px}
+  header h1{font-size:21px;margin:0;font-weight:700}
+  header .who{margin-left:auto;font-size:14px;opacity:.85;text-align:right}
+  main{max-width:640px;margin:0 auto;padding:14px 14px 20px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
+  h2{font-size:19px;margin:0 0 8px}
+  h3{font-size:16px;margin:14px 0 6px}
+  p{margin:6px 0}
+  .muted{color:var(--soft);font-size:15px}
+  .hidden{display:none!important}
+  button,.btn{font:inherit;border:0;border-radius:12px;padding:13px 16px;background:var(--brand);color:#fff;cursor:pointer;min-height:48px}
+  button.light{background:#e8eeee;color:var(--brand)}
+  button.small{padding:8px 12px;min-height:38px;font-size:15px}
+  button:disabled{opacity:.5}
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+  .row>*{flex:1 1 auto}
+  input[type=text],input[type=search],textarea,select{font:inherit;width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink)}
+  textarea{min-height:70px;resize:vertical}
+  label.chk{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;margin:6px 0;background:#fff;cursor:pointer}
+  label.chk input{width:22px;height:22px;accent-color:var(--brand)}
+  label.chk small{display:block;color:var(--soft);font-size:13px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 8px}
+  @media(max-width:420px){.grid2{grid-template-columns:1fr}}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+  .chip{background:#e8eeee;color:var(--brand);border-radius:999px;padding:5px 10px;font-size:15px;display:inline-flex;align-items:center;gap:6px}
+  .chip button{background:none;color:var(--soft);padding:0 2px;min-height:0;font-size:17px}
+  .result{border-radius:14px;padding:14px;margin:10px 0}
+  .result h3{margin:0 0 4px}
+  .result.good{background:var(--goodbg);color:var(--good)}
+  .result.warn{background:var(--warnbg);color:var(--warn)}
+  .result.bad{background:var(--badbg);color:var(--bad)}
+  .result.star{background:#fbf3df;color:#7a5a10}
+  .result ul{margin:4px 0 0;padding-left:20px}
+  .list{list-style:none;margin:0;padding:0}
+  .list li{padding:10px 0;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:center}
+  .list li:last-child{border-bottom:0}
+  .list .grow{flex:1;min-width:0}
+  .list .name{font-weight:600}
+  .reacts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0}
+  .reacts button{background:#fff;color:var(--ink);border:2px solid var(--line);padding:10px 4px;font-size:15px}
+  .reacts button.on{border-color:var(--brand);background:#e8f1f1}
+  .reacts b{display:block;font-size:24px}
+  video{width:100%;border-radius:12px;background:#000;max-height:55vh;object-fit:cover}
+  #photoPreview{width:100%;border-radius:12px;margin-top:10px}
+  .ingred{font-size:14px;color:var(--soft);white-space:pre-wrap}
+  .note{background:#eef3f3;border-radius:12px;padding:12px;font-size:14px;color:var(--soft)}
+  nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);display:flex;
+    padding-bottom:env(safe-area-inset-bottom);z-index:5}
+  nav button{flex:1;background:none;color:var(--soft);border-radius:0;padding:8px 2px;font-size:12px;min-height:62px}
+  nav button b{display:block;font-size:22px;font-weight:400}
+  nav button.on{color:var(--brand);font-weight:700}
+  .bar{height:10px;border-radius:5px;background:var(--line);overflow:hidden;margin-top:4px}
+  .bar i{display:block;height:100%;background:var(--warn)}
+  .ste-logo-wrapper{display:flex;justify-content:center;margin:18px auto 10px}
+  .ste-logo-img{width:min(240px,70%);height:auto;display:block}
+  #summary .card{border:0;padding:4px 0;background:none}
+  @media print{
+    header,nav,.noprint{display:none!important}
+    body{background:#fff;padding:0;font-size:13px}
+    main{max-width:none;padding:0}
+    .card{border:0;padding:0;margin:0 0 10px}
+    #summaryTab{display:block!important}
+    .tab:not(#summaryTab){display:none!important}
+  }
+</style>
+</head>
+<body>
+<header>
+  <img src="platepal-icon-192.png" alt="">
+  <h1>Plate Pal</h1>
+  <div class="who" id="whoLine"></div>
+</header>
+
+<main>
+  <!-- ============ CHECK A FOOD ============ -->
+  <section class="tab" id="scanTab">
+    <div id="firstRun" class="card hidden">
+      <h2>👋 Welcome</h2>
+      <p>Plate Pal helps you keep track of the foods <b>your child</b> doesn't get on with, and the ones they love.</p>
+      <p>Start by filling in <b>My list</b>. Then scan any food to check it against that list.</p>
+      <p class="muted">Everything you type stays on this phone. Nothing is sent anywhere.</p>
+      <div class="row"><button onclick="go('listTab')">Fill in my list</button></div>
+    </div>
+
+    <div id="homeCard" class="card">
+      <h2>Check a food</h2>
+      <div class="row">
+        <button id="scanBtn">📷 Scan barcode</button>
+        <button id="photoBtn" class="light">🧾 Photo of ingredients</button>
+      </div>
+      <h3>Or search by name</h3>
+      <form id="searchForm" class="row" autocomplete="off">
+        <input type="search" id="searchInput" placeholder="e.g. fish fingers">
+        <button type="submit" style="flex:0 0 auto">Search</button>
+      </form>
+      <details style="margin-top:10px"><summary class="muted">Type a barcode number instead</summary>
+        <form id="codeForm" class="row" style="margin-top:8px" autocomplete="off">
+          <input type="text" id="codeInput" inputmode="numeric" placeholder="Barcode number">
+          <button type="submit" style="flex:0 0 auto">Check</button>
+        </form>
+      </details>
+      <p id="homeStatus" class="muted" role="status"></p>
+    </div>
+
+    <div id="searchCard" class="card hidden">
+      <h2>Pick the food</h2>
+      <ul class="list" id="searchList"></ul>
+      <div class="row" style="margin-top:10px"><button class="light" onclick="showOnly(null)">Back</button></div>
+    </div>
+
+    <div id="scannerCard" class="card hidden">
+      <h2>Point at the barcode</h2>
+      <video id="video" playsinline muted></video>
+      <p id="scanStatus" class="muted"></p>
+      <div class="row">
+        <button id="torchBtn" class="light hidden">🔦 Torch</button>
+        <button class="light" onclick="stopCamera();showOnly(null)">Cancel</button>
+      </div>
+    </div>
+
+    <div id="photoCard" class="card hidden">
+      <h2>Photo of the ingredients</h2>
+      <p id="photoNote" class="muted hidden"></p>
+      <p class="muted">Take a clear, close photo of the ingredients list.</p>
+      <input type="file" id="photoInput" accept="image/*" capture="environment" class="hidden">
+      <div class="row">
+        <button onclick="els.photoInput.click()">📷 Take photo</button>
+        <button class="light" onclick="showOnly(null)">Cancel</button>
+      </div>
+      <img id="photoPreview" class="hidden" alt="">
+      <p id="ocrStatus" class="muted" role="status"></p>
+    </div>
+
+    <div id="loadingCard" class="card hidden"><p id="loadingText">Checking...</p></div>
+
+    <div id="resultCard" class="card hidden">
+      <h2 id="rName"></h2>
+      <p id="rBrand" class="muted"></p>
+      <div id="rBoxes"></div>
+      <div class="row noprint" style="margin-top:8px">
+        <button id="safeBtn" class="light"></button>
+        <button id="diaryBtn" class="light">📝 Add to diary</button>
+      </div>
+      <details style="margin-top:12px"><summary class="muted">Ingredients</summary><p id="rIngred" class="ingred"></p></details>
+      <p class="note" style="margin-top:12px">Food labels and the food database can be wrong or out of date. Always check the packet.</p>
+      <div class="row"><button onclick="showOnly(null)">Check another food</button></div>
+    </div>
+  </section>
+
+  <!-- ============ MY LIST ============ -->
+  <section class="tab hidden" id="listTab">
+    <div class="card">
+      <h2>Who is this for?</h2>
+      <p class="muted">A first name or nickname, shown on the summary. Kept on this phone only.</p>
+      <input type="text" id="kidName" maxlength="30" placeholder="e.g. Sam">
+    </div>
+    <div class="card">
+      <h2>🚫 Allergies and intolerances</h2>
+      <p class="muted">Tick only the ones a doctor has confirmed or that you know cause a problem.</p>
+      <div class="grid2" id="allergenBoxes"></div>
+    </div>
+    <div class="card">
+      <h2>🧪 Additives you've noticed</h2>
+      <p class="muted">Things that seem to upset your child. There's no proof these affect everyone. This is just what you've noticed.</p>
+      <div id="additiveBoxes"></div>
+    </div>
+    <div class="card">
+      <h2>👅 Tastes and textures</h2>
+      <p class="muted">Plate Pal looks for clue words in the name and ingredients, so treat these as a heads-up, not a sure thing.</p>
+      <div id="sensoryBoxes"></div>
+    </div>
+    <div class="card">
+      <h2>✏️ My own words</h2>
+      <p class="muted">Any food, ingredient or brand to flag, e.g. tomato, mushroom, mint.</p>
+      <form id="wordForm" class="row" autocomplete="off">
+        <input type="text" id="wordInput" placeholder="Add a word">
+        <button type="submit" style="flex:0 0 auto">Add</button>
+      </form>
+      <div class="chips" id="wordChips"></div>
+    </div>
+    <div class="card">
+      <h2>💾 Backup</h2>
+      <p class="muted">Your lists live only on this phone. Save a backup now and then, or to move to a new phone. (The website and the Android app keep separate copies.)</p>
+      <div class="row">
+        <button class="light" id="backupBtn">Save backup</button>
+        <button class="light" onclick="els.restoreInput.click()">Load backup</button>
+      </div>
+      <input type="file" id="restoreInput" accept=".json,application/json" class="hidden">
+      <p id="backupStatus" class="muted"></p>
+    </div>
+  </section>
+
+  <!-- ============ SAFE FOODS ============ -->
+  <section class="tab hidden" id="safeTab">
+    <div class="card">
+      <h2>⭐ Safe foods</h2>
+      <p class="muted">Foods your child trusts. Scan one to add it. If its ingredients change later, Plate Pal will tell you, because a recipe change can make a favourite food feel "wrong".</p>
+      <ul class="list" id="safeList"></ul>
+      <h3>Add one without scanning</h3>
+      <form id="safeForm" class="row" autocomplete="off">
+        <input type="text" id="safeInput" placeholder="e.g. Mum's pasta">
+        <button type="submit" style="flex:0 0 auto">Add</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ============ DIARY ============ -->
+  <section class="tab hidden" id="diaryTab">
+    <div class="card" id="diaryForm">
+      <h2>📝 How did it go?</h2>
+      <input type="text" id="dFood" placeholder="Food" maxlength="80">
+      <div class="reacts" id="reactBtns"></div>
+      <textarea id="dNote" placeholder="Note (optional), e.g. ate half, said it was too crunchy"></textarea>
+      <div class="row" style="margin-top:8px"><button id="dSave">Save</button></div>
+      <p id="dStatus" class="muted" role="status"></p>
+    </div>
+    <div class="card">
+      <h2>🔍 Patterns</h2>
+      <div id="patterns"></div>
+    </div>
+    <div class="card">
+      <h2>History</h2>
+      <ul class="list" id="diaryList"></ul>
+    </div>
+  </section>
+
+  <!-- ============ SUMMARY ============ -->
+  <section class="tab hidden" id="summaryTab">
+    <div class="row noprint" style="margin-bottom:12px">
+      <button onclick="ste('detail','summary-print');window.print()">🖨️ Print / save PDF</button>
+      <button class="light" id="shareBtn">📤 Share as text</button>
+    </div>
+    <div id="summary"></div>
+  </section>
+
+  <div class="ste-logo-wrapper noprint"><img src="ste-logo.png" alt="Created By The Spectrum Tech Engine" class="ste-logo-img"></div>
+  <p class="note">Plate Pal does not give medical advice and can't diagnose anything. Talk to your doctor or dietitian before cutting foods out, especially for children.</p>
+</main>
+
+<nav>
+  <button data-tab="scanTab" class="on"><b>📷</b>Check</button>
+  <button data-tab="listTab"><b>🚫</b>My list</button>
+  <button data-tab="safeTab"><b>⭐</b>Safe foods</button>
+  <button data-tab="diaryTab"><b>📝</b>Diary</button>
+  <button data-tab="summaryTab"><b>📄</b>Summary</button>
+</nav>
+
+<script>
+(function(){
+  'use strict';
+  const $=id=>document.getElementById(id);
+  const els={};
+  ['whoLine','firstRun','homeCard','homeStatus','searchForm','searchInput','codeForm','codeInput','searchCard','searchList',
+   'scannerCard','video','scanStatus','torchBtn','photoCard','photoNote','photoInput','photoPreview','ocrStatus','loadingCard','loadingText',
+   'resultCard','rName','rBrand','rBoxes','safeBtn','diaryBtn','rIngred','scanBtn','photoBtn',
+   'kidName','allergenBoxes','additiveBoxes','sensoryBoxes','wordForm','wordInput','wordChips','backupBtn','restoreInput','backupStatus',
+   'safeList','safeForm','safeInput','dFood','reactBtns','dNote','dSave','dStatus','patterns','diaryList','summary','shareBtn'
+  ].forEach(id=>els[id]=$(id));
+  window.els=els;
+
+  /* ---------- Saved data (on this phone only) ---------- */
+  const KEY='pp_data_v1';
+  function blank(){return {name:'',allergens:[],additives:[],sensory:[],words:[],safe:[],diary:[]};}
+  let D=load();
+  function load(){
+    try{const v=JSON.parse(localStorage.getItem(KEY)||'null');if(v&&typeof v==='object'){const b=blank();for(const k in b)if(Array.isArray(b[k])?Array.isArray(v[k]):typeof v[k]===typeof b[k])b[k]=v[k];return b;}}catch(e){}
+    return blank();
+  }
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(D));}catch(e){}}
+  const kid=()=>D.name.trim()||'your child';
+
+  /* ---------- Word lists ---------- */
+  // The 14 major allergens (same lists as Food Detective)
+  const ALLERGENS=[
+    ['peanut','Peanuts',['peanut','peanuts','groundnut','groundnuts','arachis']],
+    ['nuts','Tree nuts',['nut','nuts','tree nut','tree nuts','almond','almonds','hazelnut','hazelnuts','walnut','walnuts','cashew','cashews','pecan','pecans','brazil nut','brazil nuts','pistachio','pistachios','macadamia','macadamias','queensland nut','marzipan','praline']],
+    ['milk','Milk',['milk','milks','milk powder','whey','casein','caseinate','caseinates','lactose','butter','buttermilk','cream','cheese','yoghurt','yogurt','ghee']],
+    ['egg','Eggs',['egg','eggs','albumin','albumen','egg white','egg yolk']],
+    ['soy','Soya',['soy','soya','soybean','soybeans','tofu','edamame','miso']],
+    ['gluten','Gluten',['wheat','barley','rye','spelt','gluten','oat','oats','semolina','durum','kamut','couscous','bulgur','triticale','malt']],
+    ['sesame','Sesame',['sesame','sesame seed','sesame seeds','tahini']],
+    ['fish','Fish',['fish','anchovy','anchovies','tuna','salmon','cod','haddock','mackerel','sardine','sardines','pollock','hake','fish sauce']],
+    ['crustaceans','Crustaceans',['crustacean','crustaceans','crab','crabs','lobster','lobsters','prawn','prawns','shrimp','shrimps','crayfish','langoustine','langoustines','shellfish']],
+    ['molluscs','Molluscs',['mollusc','molluscs','mollusk','mollusks','mussel','mussels','oyster','oysters','squid','octopus','clam','clams','scallop','scallops','cuttlefish','whelk','whelks']],
+    ['celery','Celery',['celery','celeriac']],
+    ['mustard','Mustard',['mustard','mustard seed','mustard seeds']],
+    ['lupin','Lupin',['lupin','lupine','lupins']],
+    ['sulphites','Sulphites',['sulphite','sulphites','sulfite','sulfites','sulphur dioxide','sulfur dioxide','metabisulphite','metabisulfite','e220','e221','e222','e223','e224','e225','e226','e227','e228']]
+  ];
+  const ADDITIVES=[
+    ['colours','Artificial colours','E102, E104, E110, E122, E124, E129 and similar',['e102','tartrazine','e104','quinoline yellow','e110','sunset yellow','e122','carmoisine','azorubine','e124','ponceau 4r','e129','allura red','e133','brilliant blue','e127','erythrosine','e151','brilliant black']],
+    ['sweeteners','Sweeteners','aspartame, sucralose, acesulfame K, saccharin, sorbitol',['aspartame','e951','sucralose','e955','acesulfame','acesulfame k','e950','saccharin','e954','sorbitol','e420','xylitol','e967','maltitol','e965','sweetener','sweeteners']],
+    ['caffeine','Caffeine','cola, energy drinks, coffee, some teas',['caffeine','guarana','coffee','green tea extract']],
+    ['msg','Flavour enhancers','MSG (E621) and similar',['monosodium glutamate','msg','e621','e627','e631','e635','flavour enhancer','flavor enhancer']],
+    ['benzoates','Benzoate preservatives','E210 to E213',['sodium benzoate','benzoic acid','potassium benzoate','calcium benzoate','e210','e211','e212','e213']],
+    ['sorbates','Sorbate preservatives','E200 to E203',['sorbic acid','potassium sorbate','calcium sorbate','e200','e202','e203']],
+    ['nitrites','Nitrites / nitrates','often in ham, bacon and sausages',['sodium nitrite','potassium nitrite','sodium nitrate','potassium nitrate','e249','e250','e251','e252']]
+  ];
+  // Clue words only: a label can't really tell you how crunchy something is
+  const SENSORY=[
+    ['spicy','Spicy or hot',['chilli','chili','chillies','chilies','jalapeno','jalapeño','cayenne','hot sauce','sriracha','peri peri','piri piri','wasabi','horseradish','spicy','hot & spicy','curry','harissa','tabasco']],
+    ['crunchy','Crunchy or crispy',['crunchy','crunch','crispy','crisp','crisps','granola','brittle','croutons','puffed','extruded']],
+    ['bits','Bits, lumps or pieces',['pieces','chunks','chunky','bits','with bits','fruit pieces','inclusions','seeds','pulp','diced','chopped','nibs','oat flakes','sultanas','raisins']],
+    ['mixed','Mixed textures (e.g. sauce + lumps)',['in sauce','with sauce','stuffed','filled','topped','coated','breaded','battered','layered','trifle','casserole','stew']],
+    ['fizzy','Fizzy',['carbonated','sparkling','fizzy','carbon dioxide','e290']],
+    ['sour','Sour or sharp',['sour','vinegar','lemon','lime','tangy','pickled','pickle','malic acid','e296']],
+    ['mint','Minty',['mint','peppermint','spearmint','menthol']],
+    ['strong','Strong flavours (garlic, onion, herbs)',['garlic','onion','onions','herbs','smoked','smoky','blue cheese','anchovy','olive','olives']],
+    ['slimy','Slimy or jelly-like',['jelly','gelatine','gelatin','agar','e406','tapioca pearls','okra','mushroom','mushrooms']],
+    ['mushy','Soft or mushy',['puree','purée','mash','mashed','mousse','smooth','whipped','porridge']]
+  ];
+
+  /* ---------- Text matching (from Food Detective) ---------- */
+  const FREE_WORDS='(?:gluten|wheat|milk|dairy|lactose|egg|eggs|nut|nuts|peanut|peanuts|soy|soya|sesame|fish|shellfish|crustaceans?|mustard|celery|lupin|sulphites?|sulfites?|allergens?|sweeteners?|colou?rs?|preservatives?|caffeine|msg)';
+  const NOT_WHAT_THEY_SOUND=[
+    [/\bcocoa butter\b/g,'cocoa'],[/\bshea butter\b/g,'shea'],[/\bbutter beans?\b/g,'beans'],
+    [/\b(peanut|almond|cashew|hazelnut|nut|seed|sunflower|apple) butter\b/g,'$1'],
+    [/\b(coconut|almond|oat|oats|soy|soya|rice|cashew|hazelnut) (milk|cream|drink)\b/g,'$1'],
+    [/\bcreamed coconut\b/g,'coconut'],[/\bcream of tartar\b/g,'tartar']
+  ];
+  const TRACE_PHRASE=/\b(?:may (?:also )?contain|traces? of|(?:made|produced|manufactured|packed|prepared) (?:in|on|using) (?:a |the )?(?:factory|site|line|facility|premises|environment|kitchen|equipment)|(?:factory|site|facility|premises|kitchen) (?:that|which) (?:also )?(?:handles|uses|processes))[^.;\n]*/g;
+  function norm(s){
+    return String(s||'').toLowerCase()
+      .replace(/\b[a-z]{2}:/g,' ')
+      .replace(/[_\-‐–]/g,' ')
+      .replace(/\be\s?(\d{3}[a-z]?)\b/g,'e$1')
+      .replace(/\s+/g,' ');
+  }
+  function stripFalseMatches(t){
+    t=t.replace(new RegExp('\\b'+FREE_WORDS+' free\\b','g'),' ');
+    t=t.replace(/\bfree from [^.;:()\n]*/g,' ');
+    t=t.replace(new RegExp('\\b(?:no|without|non)(?: added)? '+FREE_WORDS+'\\b','g'),' ');
+    for(const [re,rep] of NOT_WHAT_THEY_SOUND) t=t.replace(re,rep);
+    return t;
+  }
+  function has(text,term){
+    return new RegExp('(^|[^a-z0-9])'+term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'([^a-z0-9]|$)','i').test(text);
+  }
+  // Checks a food against the list. Returns what was found, plus "tags" (everything found, even if not on the list) for diary patterns
+  function check(f){
+    let traces=norm(f.traces);
+    let main=norm(f.ingredients).replace(TRACE_PHRASE,m=>{traces+=' '+m;return ' ';});
+    main=stripFalseMatches(main); traces=stripFalseMatches(traces);
+    const named=norm([f.name,f.brand].join(' . '));
+    const all=main+' . '+named;
+    const out={contains:[],may:[],additives:[],sensory:[],words:[],tags:[]};
+    for(const [id,label,terms] of ALLERGENS){
+      if(terms.some(x=>has(main,x))){out.tags.push(label);if(D.allergens.includes(id))out.contains.push(label);}
+      else if(terms.some(x=>has(traces,x))&&D.allergens.includes(id))out.may.push(label);
+    }
+    for(const [id,label,,terms] of ADDITIVES){
+      if(terms.some(x=>has(main,x))){out.tags.push(label);if(D.additives.includes(id))out.additives.push(label);}
+    }
+    for(const [id,label,terms] of SENSORY){
+      const hit=terms.find(x=>has(all,x));
+      if(hit){out.tags.push(label);if(D.sensory.includes(id))out.sensory.push(label+' ("'+hit+'")');}
+    }
+    for(const w of D.words){ const nw=norm(w).trim(); if([nw,nw+'s',nw+'es'].some(x=>has(all,x))){out.words.push(w);out.tags.push(w);} }
+    return out;
+  }
+
+  /* ---------- Owner usage numbers (only counts, never what food or what's on the list) ---------- */
+  function ste(f,...a){try{if(window.STE&&window.STE[f])window.STE[f](...a);}catch(e){}}
+  window.ste=ste;
+
+  /* ---------- Tabs ---------- */
+  function go(tab){
+    document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('hidden',t.id!==tab));
+    document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));
+    if(tab!=='scanTab')stopCamera();
+    if(tab==='listTab')renderList();
+    if(tab==='safeTab')renderSafe();
+    if(tab==='diaryTab')renderDiary();
+    if(tab==='summaryTab')renderSummary();
+    if(tab==='scanTab')showOnly(null);
+    window.scrollTo(0,0);
+  }
+  window.go=go;
+  document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>go(b.dataset.tab)));
+
+  function showOnly(name){
+    ['homeCard','searchCard','scannerCard','photoCard','loadingCard','resultCard'].forEach(x=>els[x].classList.toggle('hidden',x!==(name||'homeCard')));
+    els.firstRun.classList.toggle('hidden',!!name||hasList());
+    window.scrollTo(0,0);
+  }
+  window.showOnly=showOnly;
+  const hasList=()=>D.allergens.length+D.additives.length+D.sensory.length+D.words.length>0;
+  function renderWho(){els.whoLine.textContent=D.name.trim()?'For '+D.name.trim():'';}
+
+  /* ---------- Camera + barcode (from Food Detective) ---------- */
+  let stream=null,detector=null,scanning=false,torchOn=false,previewUrl='',current=null;
+  const ZXING_SRC='https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js';
+  const FORMATS=['ean_13','ean_8','upc_a','upc_e'];
+  function loadScript(src){return new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=reject;document.head.appendChild(s);});}
+  async function makeDetector(){
+    if('BarcodeDetector' in window){
+      try{
+        const supported=BarcodeDetector.getSupportedFormats?await BarcodeDetector.getSupportedFormats():FORMATS;
+        const d=new BarcodeDetector({formats:FORMATS.filter(f=>supported.includes(f))});
+        return async v=>{const c=await d.detect(v);return c&&c.length?(c[0].rawValue||''):'';};
+      }catch(e){}
+    }
+    if(!window.ZXing) await loadScript(ZXING_SRC);
+    const Z=window.ZXing, hints=new Map();
+    hints.set(Z.DecodeHintType.POSSIBLE_FORMATS,[Z.BarcodeFormat.EAN_13,Z.BarcodeFormat.EAN_8,Z.BarcodeFormat.UPC_A,Z.BarcodeFormat.UPC_E]);
+    hints.set(Z.DecodeHintType.TRY_HARDER,true);
+    const reader=new Z.MultiFormatReader(); reader.setHints(hints);
+    const canvas=document.createElement('canvas'), ctx=canvas.getContext('2d',{willReadFrequently:true});
+    return async v=>{
+      const w=v.videoWidth||v.width,h=v.videoHeight||v.height; if(!w||!h)return '';
+      const scale=Math.min(1,1000/Math.max(w,h));
+      canvas.width=Math.round(w*scale); canvas.height=Math.round(h*scale);
+      ctx.drawImage(v,0,0,canvas.width,canvas.height);
+      try{return reader.decode(new Z.BinaryBitmap(new Z.HybridBinarizer(new Z.HTMLCanvasElementLuminanceSource(canvas)))).getText();}
+      catch(e){return '';} finally{reader.reset();}
+    };
+  }
+  function stopCamera(){
+    scanning=false; if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;} els.video.srcObject=null;
+    torchOn=false; els.torchBtn.classList.add('hidden'); els.torchBtn.textContent='🔦 Torch';
+  }
+  window.stopCamera=stopCamera;
+  async function startBarcode(){
+    els.homeStatus.textContent='';
+    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){els.homeStatus.textContent='The camera isn\'t available here. Search by name or type the barcode instead.';return;}
+    try{
+      stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}},audio:false});
+      els.video.srcObject=stream; await els.video.play(); showOnly('scannerCard');
+    }catch(e){stopCamera();showOnly(null);els.homeStatus.textContent='Camera permission was blocked. You can allow it in your phone settings, or search by name.';return;}
+    if(!detector){
+      els.scanStatus.textContent='Getting the scanner ready...';
+      try{detector=await makeDetector();}
+      catch(e){stopCamera();showOnly(null);els.homeStatus.textContent='The scanner couldn\'t load. Check your internet, or type the barcode.';return;}
+      if(!stream)return;
+    }
+    els.scanStatus.textContent='Hold the barcode inside the picture.';
+    try{const t=stream.getVideoTracks()[0],c=t.getCapabilities?t.getCapabilities():null;if(c&&c.torch)els.torchBtn.classList.remove('hidden');}catch(e){}
+    scanning=true; scanLoop();
+  }
+  async function scanLoop(){
+    if(!scanning)return;
+    try{const raw=String(await detector(els.video)||'').replace(/\D/g,'');if(raw&&scanning){stopCamera();lookup(raw);return;}}catch(e){}
+    setTimeout(scanLoop,120);
+  }
+  els.torchBtn.addEventListener('click',async()=>{
+    const t=stream&&stream.getVideoTracks()[0]; if(!t)return;
+    try{await t.applyConstraints({advanced:[{torch:!torchOn}]});torchOn=!torchOn;els.torchBtn.textContent=torchOn?'🔦 Torch off':'🔦 Torch';}
+    catch(e){els.torchBtn.classList.add('hidden');}
+  });
+  els.scanBtn.addEventListener('click',startBarcode);
+  els.photoBtn.addEventListener('click',()=>openPhoto(''));
+
+  /* ---------- Food database (Open Food Facts) ---------- */
+  const FIELDS='code,product_name,product_name_en,brands,ingredients_text,ingredients_text_en,allergens,allergens_tags,traces,traces_tags,additives_tags';
+  function fromOFF(p,code){
+    return {code:code||p.code||'',name:p.product_name_en||p.product_name||'Unknown food',brand:p.brands||'',
+      ingredients:[p.ingredients_text_en||p.ingredients_text||'',p.allergens||'',(p.allergens_tags||[]).join(' '),(p.additives_tags||[]).join(' ')].join(' . '),
+      ingredientsText:p.ingredients_text_en||p.ingredients_text||'',
+      traces:[p.traces||'',(p.traces_tags||[]).join(' ')].join(' . ')};
+  }
+  async function lookup(code){
+    code=String(code).replace(/\D/g,'');
+    if(!code){els.homeStatus.textContent='Please type a barcode number.';return;}
+    showOnly('loadingCard'); els.loadingText.textContent='Looking it up...';
+    ste('track','play'); ste('detail','barcode-checked');
+    try{
+      const r=await fetch('https://world.openfoodfacts.org/api/v2/product/'+encodeURIComponent(code)+'.json?fields='+FIELDS,{headers:{'Accept':'application/json'}});
+      if(!r.ok&&r.status!==404)throw new Error('network');
+      const data=await r.json();
+      if(data.status!==1||!data.product){
+        // Not in the database: it might still be a saved safe food
+        const s=D.safe.find(x=>x.code===code);
+        if(s){showResult({code,name:s.name,brand:s.brand||'',ingredients:'',ingredientsText:'',traces:''},true);return;}
+        openPhoto('This food isn\'t in the food database. Take a photo of the ingredients and Plate Pal will check them.',{code});return;
+      }
+      showResult(fromOFF(data.product,code));
+    }catch(e){
+      showOnly(null); els.homeStatus.textContent='The food database couldn\'t be reached. Try again, or take a photo of the ingredients.';
+    }
+  }
+  els.codeForm.addEventListener('submit',e=>{e.preventDefault();lookup(els.codeInput.value);});
+  els.searchForm.addEventListener('submit',async e=>{
+    e.preventDefault();
+    const q=els.searchInput.value.trim(); if(!q)return;
+    showOnly('loadingCard'); els.loadingText.textContent='Searching...';
+    ste('track','play'); ste('detail','name-search');
+    try{
+      // Two search services: the classic one, then the newer one (whichever answers first in order)
+      let list=null;
+      const urls=['https://world.openfoodfacts.org/cgi/search.pl?search_simple=1&action=process&json=1&page_size=15&fields='+FIELDS+'&search_terms='+encodeURIComponent(q),
+        'https://search.openfoodfacts.org/search?page_size=15&fields='+FIELDS+'&q='+encodeURIComponent(q)];
+      for(const u of urls){
+        try{
+          const r=await fetch(u); if(!r.ok)continue;
+          const data=await r.json();
+          list=(data.products||data.hits||[]).map(p=>Object.assign({},p,{brands:Array.isArray(p.brands)?p.brands.join(', '):p.brands}));
+          break;
+        }catch(err){}
+      }
+      if(!list)throw new Error('search');
+      list=list.filter(p=>p.product_name||p.product_name_en);
+      if(!list.length){showOnly(null);els.homeStatus.textContent='Nothing found for "'+q+'". Try a shorter name, or scan the barcode.';return;}
+      els.searchList.innerHTML='';
+      list.forEach(p=>{
+        const f=fromOFF(p), li=document.createElement('li');
+        li.innerHTML='<div class="grow"><div class="name"></div><div class="muted"></div></div><button class="small light">Check</button>';
+        li.querySelector('.name').textContent=f.name; li.querySelector('.muted').textContent=f.brand;
+        li.querySelector('button').addEventListener('click',()=>showResult(f));
+        els.searchList.appendChild(li);
+      });
+      showOnly('searchCard');
+    }catch(err){showOnly(null);els.homeStatus.textContent='Search isn\'t working right now. Try again in a minute, or scan the barcode.';}
+  });
+
+  /* ---------- Ingredient photo (from Food Detective) ---------- */
+  let photoFor=null;
+  function openPhoto(note,forFood){
+    stopCamera(); showOnly('photoCard'); photoFor=forFood||null;
+    els.ocrStatus.textContent=''; els.photoInput.value=''; els.photoPreview.classList.add('hidden');
+    els.photoNote.textContent=note||''; els.photoNote.classList.toggle('hidden',!note);
+  }
+  els.photoInput.addEventListener('change',async()=>{
+    const file=els.photoInput.files[0]; if(!file)return;
+    ste('track','play'); ste('detail','ingredients-photo-read');
+    if(previewUrl)URL.revokeObjectURL(previewUrl);
+    previewUrl=URL.createObjectURL(file); els.photoPreview.src=previewUrl; els.photoPreview.classList.remove('hidden');
+    els.ocrStatus.textContent='Reading the label...';
+    try{
+      if(!window.Tesseract) await loadScript('https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js');
+      const res=await window.Tesseract.recognize(file,'eng',{logger:m=>{if(m.status==='recognizing text'&&m.progress)els.ocrStatus.textContent='Reading the label: '+Math.round(m.progress*100)+'%';}});
+      const text=(res.data&&res.data.text||'').trim();
+      if(!text){els.ocrStatus.textContent='I couldn\'t read that clearly. Try a closer, brighter photo.';return;}
+      const pf=photoFor||{};
+      showResult({code:pf.code||'',name:pf.name||'Food from photo',brand:pf.brand||'',ingredients:text.replace(/\n/g,' '),ingredientsText:text,traces:''});
+    }catch(e){els.ocrStatus.textContent='Reading the label didn\'t work. Check your internet and try again.';}
+  });
+
+  /* ---------- Result ---------- */
+  const fingerprint=t=>norm(t).replace(/[^a-z0-9]/g,'');
+  function findSafe(f){return D.safe.find(s=>(f.code&&s.code===f.code)||(!f.code&&!s.code&&s.name.toLowerCase()===f.name.toLowerCase()));}
+  function box(kind,title,items,extra){
+    return '<div class="result '+kind+'"><h3>'+esc(title)+'</h3>'+(items&&items.length?'<ul>'+items.map(i=>'<li>'+esc(i)+'</li>').join('')+'</ul>':'')+(extra?'<p>'+esc(extra)+'</p>':'')+'</div>';
+  }
+  function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+  function showResult(f,onlySaved){
+    current=f;
+    const r=check(f); current.tags=r.tags;
+    els.rName.textContent=f.name; els.rBrand.textContent=f.brand;
+    let html='';
+    const s=findSafe(f);
+    if(s){
+      const changed=!onlySaved&&s.fp&&f.ingredientsText&&fingerprint(f.ingredientsText)!==s.fp;
+      html+=box('star','⭐ One of '+kid()+'\'s safe foods',null,changed?'The ingredients look different from when you saved it. The recipe may have changed, so it might taste or feel different. Worth a check before serving.':'');
+      if(changed){s.changed=true;save();}
+    }
+    const red=[].concat(r.contains.map(x=>'Contains '+x),r.additives,r.words.map(w=>'"'+w+'"'));
+    if(red.length) html+=box('bad','On '+kid()+'\'s avoid list',red);
+    if(r.may.length) html+=box('warn','May contain (traces)',r.may);
+    if(r.sensory.length) html+=box('warn','Might be a taste or texture '+kid()+' dislikes',r.sensory,'These are clue words in the name or ingredients. Only you know for sure.');
+    if(!red.length&&!r.may.length&&!r.sensory.length){
+      if(!f.ingredients.replace(/[ .]/g,'')) html+=box('warn','Not checked yet',null,onlySaved?'The food database doesn\'t have this one.':'There are no ingredients to check. Take a photo of the ingredients list.');
+      else if(!hasList()) html+=box('warn','Your list is empty',null,'Fill in My list so Plate Pal knows what to look for.');
+      else html+=box('good','Nothing from your list found',null,'This is a helpful check, not a promise. Labels can be wrong.');
+    }
+    els.rBoxes.innerHTML=html;
+    els.rIngred.textContent=f.ingredientsText||'No ingredients available.';
+    els.safeBtn.textContent=s?'Remove from safe foods':'⭐ Add to safe foods';
+    showOnly('resultCard');
+  }
+  els.safeBtn.addEventListener('click',()=>{
+    if(!current)return;
+    const s=findSafe(current);
+    if(s){D.safe=D.safe.filter(x=>x!==s);}
+    else{D.safe.unshift({code:current.code||'',name:current.name,brand:current.brand||'',fp:current.ingredientsText?fingerprint(current.ingredientsText):'',added:Date.now()});ste('detail','safe-food-added');}
+    save(); showResult(current);
+  });
+  els.diaryBtn.addEventListener('click',()=>{
+    if(!current)return;
+    const f=current; go('diaryTab');
+    els.dFood.value=f.name; pendingTags=f.tags||[]; pendingCode=f.code||'';
+    els.dFood.focus();
+  });
+
+  /* ---------- My list ---------- */
+  function boxesFor(container,list,arr,withSub){
+    container.innerHTML='';
+    list.forEach(item=>{
+      const id=item[0],label=item[1],sub=withSub?item[2]:'';
+      const l=document.createElement('label'); l.className='chk';
+      l.innerHTML='<input type="checkbox"><span></span>';
+      const sp=l.querySelector('span'); sp.textContent=label;
+      if(sub){const sm=document.createElement('small');sm.textContent=sub;sp.appendChild(sm);}
+      const cb=l.querySelector('input'); cb.checked=D[arr].includes(id);
+      cb.addEventListener('change',()=>{D[arr]=D[arr].filter(x=>x!==id);if(cb.checked)D[arr].push(id);save();});
+      container.appendChild(l);
+    });
+  }
+  function renderList(){
+    els.kidName.value=D.name;
+    boxesFor(els.allergenBoxes,ALLERGENS,'allergens',false);
+    boxesFor(els.additiveBoxes,ADDITIVES,'additives',true);
+    boxesFor(els.sensoryBoxes,SENSORY,'sensory',false);
+    renderWords();
+  }
+  function renderWords(){
+    els.wordChips.innerHTML='';
+    D.words.forEach(w=>{
+      const c=document.createElement('span'); c.className='chip'; c.textContent=w;
+      const b=document.createElement('button'); b.textContent='×'; b.setAttribute('aria-label','Remove '+w);
+      b.addEventListener('click',()=>{D.words=D.words.filter(x=>x!==w);save();renderWords();});
+      c.appendChild(b); els.wordChips.appendChild(c);
+    });
+  }
+  els.kidName.addEventListener('input',()=>{D.name=els.kidName.value.slice(0,30);save();renderWho();});
+  els.wordForm.addEventListener('submit',e=>{
+    e.preventDefault();
+    const w=els.wordInput.value.trim().toLowerCase().slice(0,40);
+    if(w&&!D.words.includes(w)){D.words.push(w);save();renderWords();}
+    els.wordInput.value='';
+  });
+
+  /* ---------- Backup ---------- */
+  els.backupBtn.addEventListener('click',async()=>{
+    const name='plate-pal-backup-'+new Date().toISOString().slice(0,10)+'.json';
+    const blob=new Blob([JSON.stringify({app:'plate-pal',saved:Date.now(),data:D},null,1)],{type:'application/json'});
+    try{
+      const file=new File([blob],name,{type:'application/json'});
+      if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:'Plate Pal backup'});els.backupStatus.textContent='Backup ready. Save it somewhere safe, like your email or Google Drive.';return;}
+    }catch(e){if(e&&e.name==='AbortError')return;}
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click(); a.remove();
+    els.backupStatus.textContent='Backup saved to your downloads.';
+  });
+  els.restoreInput.addEventListener('change',async()=>{
+    const f=els.restoreInput.files[0]; if(!f)return;
+    try{
+      const v=JSON.parse(await f.text());
+      if(!v||v.app!=='plate-pal'||!v.data)throw new Error('bad');
+      if(!confirm('Replace everything on this phone with the backup from '+new Date(v.saved).toLocaleDateString()+'?'))return;
+      localStorage.setItem(KEY,JSON.stringify(v.data)); D=load(); renderList(); renderWho();
+      els.backupStatus.textContent='Backup loaded.';
+    }catch(e){els.backupStatus.textContent='That file isn\'t a Plate Pal backup.';}
+    els.restoreInput.value='';
+  });
+
+  /* ---------- Safe foods ---------- */
+  function renderSafe(){
+    els.safeList.innerHTML=D.safe.length?'':'<li class="muted">No safe foods yet.</li>';
+    D.safe.forEach(s=>{
+      const li=document.createElement('li');
+      li.innerHTML='<div class="grow"><div class="name"></div><div class="muted"></div></div><button class="small light">Remove</button>';
+      li.querySelector('.name').textContent=(s.changed?'⚠️ ':'⭐ ')+s.name;
+      li.querySelector('.muted').textContent=[s.brand,s.changed?'Recipe may have changed':''].filter(Boolean).join(' · ');
+      li.querySelector('button').addEventListener('click',()=>{if(confirm('Remove '+s.name+' from safe foods?')){D.safe=D.safe.filter(x=>x!==s);save();renderSafe();}});
+      els.safeList.appendChild(li);
+    });
+  }
+  els.safeForm.addEventListener('submit',e=>{
+    e.preventDefault(); const n=els.safeInput.value.trim().slice(0,80); if(!n)return;
+    D.safe.unshift({code:'',name:n,brand:'',fp:'',added:Date.now()}); save(); els.safeInput.value=''; renderSafe();
+  });
+
+  /* ---------- Diary ---------- */
+  const REACTIONS=[['liked','😋','Liked it'],['ok','🙂','OK'],['refused','🙅','Wouldn\'t eat'],['upset','🤢','Tummy upset'],['meltdown','😣','Very upset'],['skin','🔴','Skin rash'],['sleep','😴','Bad sleep'],['hyper','⚡','Wired'],['other','✏️','Other']];
+  const BAD=['upset','meltdown','skin','sleep','hyper'];
+  let picked='',pendingTags=[],pendingCode='';
+  REACTIONS.forEach(([id,emo,label])=>{
+    const b=document.createElement('button'); b.type='button'; b.innerHTML='<b>'+emo+'</b>'; b.appendChild(document.createTextNode(label));
+    b.addEventListener('click',()=>{picked=id;els.reactBtns.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));});
+    els.reactBtns.appendChild(b);
+  });
+  els.dFood.addEventListener('input',()=>{pendingTags=[];pendingCode='';});
+  els.dSave.addEventListener('click',()=>{
+    const food=els.dFood.value.trim();
+    if(!food){els.dStatus.textContent='Type the food first.';return;}
+    if(!picked){els.dStatus.textContent='Pick how it went.';return;}
+    // A typed food still gets clue words from its name and your own words
+    const tags=pendingTags.length?pendingTags:check({name:food,brand:'',ingredients:food,traces:''}).tags;
+    D.diary.unshift({t:Date.now(),food,code:pendingCode,r:picked,note:els.dNote.value.trim().slice(0,300),tags});
+    save(); ste('detail','diary-entry');
+    els.dFood.value=''; els.dNote.value=''; picked=''; pendingTags=[]; pendingCode='';
+    els.reactBtns.querySelectorAll('button').forEach(x=>x.classList.remove('on'));
+    els.dStatus.textContent='Saved.'; setTimeout(()=>els.dStatus.textContent='',2500);
+    renderDiary();
+  });
+  const rx=id=>REACTIONS.find(r=>r[0]===id)||REACTIONS[REACTIONS.length-1];
+  const day=t=>new Date(t).toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'});
+  function renderDiary(){
+    els.diaryList.innerHTML=D.diary.length?'':'<li class="muted">Nothing yet. Add how a food went above, or tap "Add to diary" after checking a food.</li>';
+    D.diary.slice(0,100).forEach(e=>{
+      const [,emo,label]=rx(e.r), li=document.createElement('li');
+      li.innerHTML='<div style="font-size:26px"></div><div class="grow"><div class="name"></div><div class="muted"></div></div><button class="small light" aria-label="Delete">🗑️</button>';
+      li.firstChild.textContent=emo;
+      li.querySelector('.name').textContent=e.food;
+      li.querySelector('.muted').textContent=day(e.t)+' · '+label+(e.note?' · '+e.note:'');
+      li.querySelector('button').addEventListener('click',()=>{if(confirm('Delete this diary entry?')){D.diary=D.diary.filter(x=>x!==e);save();renderDiary();}});
+      els.diaryList.appendChild(li);
+    });
+    els.patterns.innerHTML=patternsHtml();
+  }
+  // Counts which ingredients/clues keep turning up when things went badly. Patterns, not causes.
+  function patterns(){
+    const bad=D.diary.filter(e=>BAD.includes(e.r)), counts={}, totals={};
+    D.diary.forEach(e=>(e.tags||[]).forEach(t=>{totals[t]=(totals[t]||0)+1;}));
+    bad.forEach(e=>(e.tags||[]).forEach(t=>{counts[t]=(counts[t]||0)+1;}));
+    const tags=Object.keys(counts).filter(t=>counts[t]>=2).sort((a,b)=>counts[b]-counts[a]).slice(0,6).map(t=>({t,n:counts[t],of:totals[t]}));
+    const foods={}; D.diary.filter(e=>e.r==='refused').forEach(e=>{const k=e.food.toLowerCase();foods[k]=foods[k]||{name:e.food,n:0};foods[k].n++;});
+    const refused=Object.values(foods).filter(f=>f.n>=2).sort((a,b)=>b.n-a.n).slice(0,5);
+    return {bad:bad.length,tags,refused};
+  }
+  function patternsHtml(){
+    if(D.diary.length<3)return '<p class="muted">After a few diary entries, Plate Pal will show anything that keeps turning up.</p>';
+    const p=patterns(); let h='';
+    if(p.tags.length){
+      h+='<p>Things that turned up more than once when it didn\'t go well ('+p.bad+' times so far):</p>';
+      p.tags.forEach(x=>{h+='<p style="margin:8px 0 2px"><b>'+esc(x.t)+'</b>: '+x.n+' of the '+x.of+' times it was eaten</p><div class="bar"><i style="width:'+Math.round(100*x.n/x.of)+'%"></i></div>';});
+    }
+    if(p.refused.length) h+='<h3>Often refused</h3><p>'+p.refused.map(f=>esc(f.name)+' ('+f.n+'×)').join(', ')+'</p>';
+    if(!h) h='<p class="muted">No clear patterns yet. Keep adding entries.</p>';
+    return h+'<p class="note" style="margin-top:10px">These are just things that happened together, not proof that a food caused anything. They\'re worth showing your doctor or dietitian.</p>';
+  }
+
+  /* ---------- Summary ---------- */
+  function labelsOf(list,ids){return list.filter(x=>ids.includes(x[0])).map(x=>x[1]);}
+  function summaryParts(){
+    return {
+      allergens:labelsOf(ALLERGENS,D.allergens), additives:labelsOf(ADDITIVES,D.additives), sensory:labelsOf(SENSORY,D.sensory),
+      words:D.words, safe:D.safe.map(s=>s.name+(s.brand?' ('+s.brand+')':'')), recent:D.diary.slice(0,20), p:patterns()
+    };
+  }
+  function renderSummary(){
+    const s=summaryParts(), sec=(t,arr)=>'<h3>'+esc(t)+'</h3>'+(arr.length?'<p>'+arr.map(esc).join(', ')+'</p>':'<p class="muted">None noted</p>');
+    let h='<div class="card"><h2>Food summary'+(D.name.trim()?' for '+esc(D.name.trim()):'')+'</h2><p class="muted">Made with Plate Pal on '+esc(new Date().toLocaleDateString())+'</p>';
+    h+=sec('Allergies / intolerances',s.allergens)+sec('Additives noticed',s.additives)+sec('Tastes and textures disliked',s.sensory)+sec('Other foods to avoid',s.words)+sec('Safe foods',s.safe);
+    h+='<h3>Recent diary</h3>'+(s.recent.length?'<ul class="list">'+s.recent.map(e=>'<li><div class="grow">'+esc(day(e.t))+': <b>'+esc(e.food)+'</b>, '+esc(rx(e.r)[2])+(e.note?' ('+esc(e.note)+')':'')+'</div></li>').join('')+'</ul>':'<p class="muted">No entries</p>');
+    if(D.diary.length>=3) h+='<h3>Patterns</h3>'+patternsHtml();
+    h+='<p class="muted" style="margin-top:12px">Written by a parent or carer from their own observations. Not a medical record.</p></div>';
+    els.summary.innerHTML=h;
+  }
+  function summaryText(){
+    const s=summaryParts(), L=[];
+    L.push('Food summary'+(D.name.trim()?' for '+D.name.trim():'')+' ('+new Date().toLocaleDateString()+')','');
+    const add=(t,a)=>{L.push(t+': '+(a.length?a.join(', '):'none noted'));};
+    add('Allergies / intolerances',s.allergens); add('Additives noticed',s.additives); add('Tastes and textures disliked',s.sensory); add('Other foods to avoid',s.words); add('Safe foods',s.safe);
+    if(s.recent.length){L.push('','Recent diary:');s.recent.forEach(e=>L.push('- '+day(e.t)+': '+e.food+', '+rx(e.r)[2]+(e.note?' ('+e.note+')':'')));}
+    if(s.p.tags.length){L.push('','Turned up more than once when it went badly: '+s.p.tags.map(x=>x.t+' ('+x.n+' of '+x.of+')').join(', '));}
+    L.push('','Written by a parent or carer. Not a medical record.');
+    return L.join('\n');
+  }
+  els.shareBtn.addEventListener('click',async()=>{
+    const text=summaryText(); ste('detail','summary-share');
+    try{if(navigator.share){await navigator.share({title:'Food summary',text});return;}}catch(e){if(e&&e.name==='AbortError')return;}
+    try{await navigator.clipboard.writeText(text);alert('Summary copied. You can paste it into a message or email.');}catch(e){alert(text);}
+  });
+
+  /* ---------- Start ---------- */
+  renderWho(); showOnly(null);
+  if('serviceWorker' in navigator && location.protocol==='https:') navigator.serviceWorker.register('sw.js').catch(()=>{});
+  // localhost-only test hook
+  if(/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) window.__pp={get D(){return D;},check,showResult,patterns};
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "appId": "com.thespectrumtechengine.platepal",
+  "appName": "Plate Pal",
+  "webDir": "www",
+  "backgroundColor": "#0f0c29",
+  "server": {
+    "url": "https://thespectrumtechengine.com/plate-pal/",
+    "errorPath": "index.html"
+  }
+}
